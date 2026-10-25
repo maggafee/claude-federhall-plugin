@@ -1,0 +1,86 @@
+/* Federhall admin pages */
+.federhall-admin .fh-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	padding: 4px 20px 16px;
+	margin: 16px 0;
+	max-width: 1400px;
+}
+.federhall-admin .fh-card h2 { margin: 16px 0 10px; }
+.federhall-admin .fh-upload { padding-top: 16px; }
+
+.federhall-admin .fh-drop {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 26px 16px;
+	border: 2px dashed #8c8f94;
+	border-radius: 8px;
+	background: #f6f7f7;
+	text-align: center;
+	cursor: pointer;
+	transition: background .15s, border-color .15s;
+}
+.federhall-admin .fh-drop:hover,
+.federhall-admin .fh-drop.is-over { border-color: #2271b1; background: #f0f6fc; }
+.federhall-admin .fh-drop .dashicons { font-size: 34px; width: 34px; height: 34px; color: #2271b1; }
+.federhall-admin .fh-drop input[type=file] { margin-top: 6px; }
+.federhall-admin .fh-upload-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 12px 0 0; }
+.federhall-admin .fh-file-list { font-weight: 600; }
+
+.federhall-admin .fh-tracks td { vertical-align: middle; }
+.federhall-admin .fh-tracks input[type=text] { width: 100%; }
+.federhall-admin .fh-col-handle { width: 28px; }
+.federhall-admin .fh-handle { cursor: move; color: #8c8f94; }
+.federhall-admin .fh-col-num { width: 64px; text-align: center; }
+.federhall-admin .fh-tracks { table-layout: fixed; }
+.federhall-admin .fh-col-title { width: 24%; }
+.federhall-admin .fh-col-artist { width: 15%; }
+.federhall-admin .fh-col-audio { width: 220px; }
+.federhall-admin .fh-col-audio audio { width: 210px; height: 34px; display: block; }
+.federhall-admin .fh-col-del { width: 36px; }
+.federhall-admin .fh-missing { color: #b32d2e; }
+.federhall-admin .fh-delete { color: #b32d2e; text-decoration: none; }
+.federhall-admin .ui-sortable-helper { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,.15); display: table; }
+.federhall-admin .ui-sortable-placeholder { visibility: visible !important; background: #f0f6fc; }
+.federhall-admin .fh-save-row { display: flex; align-items: center; gap: 12px; }
+
+/* stats */
+.federhall-admin .fh-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 16px 0; max-width: 1400px; }
+.federhall-admin .fh-tile { background: #fff; border: 1px solid #c3c4c7; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.federhall-admin .fh-tile-label { color: #50575e; font-size: 13px; }
+.federhall-admin .fh-tile-value { font-size: 30px; font-weight: 600; line-height: 1.15; color: #1d2327; font-variant-numeric: tabular-nums; }
+.federhall-admin .fh-tile-text { font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.federhall-admin .fh-col-bar { width: 40%; }
+.federhall-admin .fh-bar-row { display: flex; align-items: center; gap: 8px; }
+.federhall-admin .fh-hbar { display: block; height: 14px; background: #2271b1; border-radius: 0 4px 4px 0; max-width: calc(100% - 50px); }
+.federhall-admin .fh-hbar-val { font-weight: 600; font-variant-numeric: tabular-nums; color: #1d2327; }
+.federhall-admin .fh-reset-link { color: #b32d2e; }
+
+.federhall-admin .fh-chart { display: flex; gap: 8px; height: 180px; }
+.federhall-admin .fh-chart-axis { display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; color: #646970; text-align: right; min-width: 24px; }
+.federhall-admin .fh-chart-bars { flex: 1; display: flex; align-items: flex-end; gap: 2px; border-bottom: 1px solid #c3c4c7; background: linear-gradient(#f0f0f1 1px, transparent 1px) 0 0 / 100% 50%; }
+.federhall-admin .fh-vbar-wrap { flex: 1; height: 100%; display: flex; align-items: flex-end; cursor: default; outline: none; }
+.federhall-admin .fh-vbar { display: block; width: 100%; max-width: 22px; margin: 0 auto; background: #2271b1; border-radius: 4px 4px 0 0; }
+.federhall-admin .fh-vbar-wrap:hover .fh-vbar,
+.federhall-admin .fh-vbar-wrap:focus .fh-vbar { background: #135e96; }
+.federhall-admin .fh-chart-x { display: flex; justify-content: space-between; margin-left: 32px; font-size: 12px; color: #646970; padding-top: 4px; }
+.federhall-admin .fh-actions form { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+
+/* settings */
+.federhall-admin .fh-knob-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px 24px; margin: 14px 0; }
+.federhall-admin .fh-knob-field { display: grid; grid-template-columns: 80px 1fr 70px; align-items: center; gap: 8px; }
+.federhall-admin .fh-knob-label { font-weight: 600; }
+.federhall-admin .fh-knob-field output { font-variant-numeric: tabular-nums; color: #50575e; }
+.federhall-admin .fh-switch-grid { display: flex; gap: 40px; flex-wrap: wrap; margin: 6px 0 4px; }
+.federhall-admin .fh-switch-grid legend { font-weight: 600; margin-bottom: 4px; }
+.federhall-admin .fh-switch-grid label { margin-right: 14px; }
+
+@media (max-width: 782px) {
+	.federhall-admin .fh-tracks thead { display: none; }
+	.federhall-admin .fh-tracks tr { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px 0; }
+	.federhall-admin .fh-tracks td { display: block; width: auto !important; text-align: left; }
+	.federhall-admin .fh-col-audio audio { width: 100%; }
+}
