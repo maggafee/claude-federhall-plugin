@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "federhall/player",
+	"title": "Federhall Player",
+	"category": "media",
+	"icon": "format-audio",
+	"description": "DUBASCO Federhall mit Titelauswahl, Reglern, animierten Federn und Herz-Likes.",
+	"keywords": [ "federhall", "reverb", "dub", "mp3", "player" ],
+	"textdomain": "federhall",
+	"attributes": {
+		"tracks": { "type": "string", "default": "" },
+		"track": { "type": "string", "default": "" },
+		"width": { "type": "number", "default": 0 }
+	},
+	"supports": { "html": false, "align": [ "wide", "full" ] },
+	"editorScript": "federhall-block-editor",
+	"style": "federhall"
+}
