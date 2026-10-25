@@ -7,6 +7,7 @@
 #include "dsp/DspUtils.h"
 #include "dsp/PlateReverb.h"
 #include "dsp/SpringTank.h"
+#include "dsp/SpringCrash.h"
 
 namespace ParamIDs
 {
@@ -61,6 +62,10 @@ public:
     std::atomic<float> springLevel { 0.0f }; // envelope of the tank output
     std::atomic<float> springKick { 0.0f };  // envelope of the tank input (fast)
 
+    // GUI -> audio: hit a spring by hand (0 top .. 2 bottom), strength 0..2.
+    // Lock-free; hits arriving within one audio block are summed.
+    void strikeSpring (int spring, float strength);
+
 private:
     void updateFilters (float tone, bool dub);
 
@@ -71,6 +76,8 @@ private:
     dub::DelayLine preDelay;
     dub::SpringTank spring;
     dub::PlateReverb plate;
+    dub::SpringCrash crash;
+    std::atomic<float> crashPending[3] {};
 
     // tank driver (2x oversampled saturation)
     std::unique_ptr<juce::dsp::Oversampling<float>> oversampler;

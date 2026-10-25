@@ -21,6 +21,11 @@ macOS (Apple Silicon + Intel), Windows, Linux.
 | **EQ**: Flat / Dub | Dub = klassischer Dub-Send-EQ: Bass raus (190 Hz, 24 dB/Okt.), Mitten-Präsenz bei 1,5 kHz, weiche Höhen. |
 | **Tank Drive**: Clean / Dirty | Dirty = asymmetrisch übersteuerter Röhrentreiber (2× Oversampling) und Federn, die bei harten Schlägen „crashen“. |
 
+**Federn krachen lassen (King-Tubby-Crash):** Mit der Maus oder dem Finger über die Federn fahren.
+Antippen zupft eine Feder, quer drüberstreichen lässt sie krachen (je schneller, desto lauter), längs
+entlangfahren kratzt und rasselt. Auch ohne Klicken kracht es, wenn die Maus schnell über die Federn wischt.
+Der Krach läuft durch einen eigenen, übersteuerten Feder-Tank und ist unabhängig von Mix und Spring/Plate immer zu hören.
+
 Doppelklick auf einen Regler setzt ihn zurück. Das Fenster ist frei skalierbar (Ecke ziehen).
 
 ## Klangmodell

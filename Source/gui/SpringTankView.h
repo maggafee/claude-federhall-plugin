@@ -2,6 +2,7 @@
 
 #include "Widgets.h"
 #include <array>
+#include <functional>
 #include <vector>
 
 // The backlit spring compartment. The three coil strips are cut from the
@@ -16,8 +17,22 @@ public:
     void paint (juce::Graphics&) override;
     void tick (float dt, float wetLevel, float kickLevel);
 
+    // hand on the springs: tap, strum across or scrape along them
+    std::function<void (int spring, float strength)> onStrike;
+
+    void mouseDown (const juce::MouseEvent&) override;
+    void mouseDrag (const juce::MouseEvent&) override;
+    void mouseMove (const juce::MouseEvent&) override;
+    void mouseExit (const juce::MouseEvent&) override;
+
 private:
     void render();
+    void handleMotion (juce::Point<float> pos, double timeMs, bool pressed);
+    void strike (int spring, float u, float strength);
+
+    juce::Point<float> lastPos;
+    double lastTime = 0.0, lastScrape[3] {};
+    bool hasLast = false;
 
     juce::Image base, hot, frame;
     juce::Image strip[3], stripHot[3];

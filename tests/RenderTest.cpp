@@ -138,6 +138,34 @@ int main (int argc, char** argv)
         writeWav (outDir.getChildFile ("spring_ir.wav"), io, fs);
     }
 
+    // spring crash: kick, strum, scrape (silence in, mix fully dry)
+    {
+        DubascoProcessor p;
+        p.setPlayConfigDetails (2, 2, fs, block);
+        setParam (p, ParamIDs::mix, 0.0f);
+        p.prepareToPlay (fs, block);
+        AudioBuffer<float> io (2, (int) (fs * 8));
+        io.clear();
+        MidiBuffer midi;
+        int blockNo = 0;
+        for (int pos = 0; pos < io.getNumSamples(); pos += block, ++blockNo)
+        {
+            const double t = (double) pos / fs;
+            if (blockNo == 2) p.strikeSpring (1, 2.0f);                        // violent kick
+            if (t > 2.5 && t < 2.6 && blockNo % 2 == 0) p.strikeSpring (blockNo % 3, 1.2f); // strum over all
+            if (t > 4.5 && t < 5.5 && blockNo % 6 == 0) p.strikeSpring (0, 0.25f);          // scrape
+            AudioBuffer<float> sub (io.getArrayOfWritePointers(), 2, pos, std::min (block, io.getNumSamples() - pos));
+            p.processBlock (sub, midi);
+        }
+        bool finite = true;
+        for (int ch = 0; ch < 2; ++ch)
+            for (int i = 0; i < io.getNumSamples(); ++i)
+                finite &= std::isfinite (io.getSample (ch, i));
+        printf ("crash               peak %.2f  rms(0-2s) %.1f dB  rms(4.5-6s) %.1f dB  %s\n", io.getMagnitude (0, io.getNumSamples()),
+                rmsDb (io, 0, (int) (fs * 2)), rmsDb (io, (int) (fs * 4.5), (int) (fs * 1.5)), finite ? "ok" : "NaN!");
+        writeWav (outDir.getChildFile ("crash.wav"), io, fs);
+    }
+
     // GUI snapshots: idle and with signal
     if (argc > 2)
     {

@@ -96,6 +96,7 @@ void DubascoProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     preDelay.prepare ((int) (0.52 * fs) + 8);
     spring.prepare (fs);
     plate.prepare (fs);
+    crash.prepare (fs);
 
     oversampler = std::make_unique<juce::dsp::Oversampling<float>> (
         1, 1, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, true);
@@ -186,6 +187,13 @@ void DubascoProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     const float t60 = 0.6f * std::pow (10.0f, reverb);  // 0.6 s .. 6 s
     spring.setDecay (t60);
     spring.setDirty (dirty);
+    crash.setDecay (t60);
+    for (int sIdx = 0; sIdx < 3; ++sIdx)
+    {
+        const float hit = crashPending[sIdx].exchange (0.0f);
+        if (hit > 0.0f)
+            crash.hit (sIdx, std::min (hit, 2.0f));
+    }
     plate.setDecay (0.30f + 0.67f * reverb);
     plate.setDamping (0.55f - 0.5f * tone);
     plate.setBandwidth (0.55f + 0.4499f * tone);
@@ -277,7 +285,9 @@ void DubascoProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
         // meters for the spring animation
         const float a = std::abs (x);
         kickEnv = a + (a > kickEnv ? kickAtt : kickRel) * (kickEnv - a);
-        const float w = 0.5f * (std::abs (wL) + std::abs (wR));
+        float cL = 0, cR = 0;
+        crash.process (cL, cR);
+        const float w = 0.5f * (std::abs (wL) + std::abs (wR) + std::abs (cL) + std::abs (cR));
         sprEnv = w + (w > sprEnv ? sprAtt : sprRel) * (sprEnv - w);
 
         const float m = mixAmt.getNextValue();
@@ -285,12 +295,12 @@ void DubascoProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
         const float wetG = std::sin (m * 0.5f * kPi);
         const float og = outGain.getNextValue();
 
-        const float oL = (L[i] * dryG + wL * wetG) * og;
+        const float oL = (L[i] * dryG + wL * wetG + cL) * og;
         L[i] = oL;
         float sq = oL * oL;
         if (R)
         {
-            const float oR = (R[i] * dryG + wR * wetG) * og;
+            const float oR = (R[i] * dryG + wR * wetG + cR) * og;
             R[i] = oR;
             sq = 0.5f * (sq + oR * oR);
         }
@@ -312,6 +322,14 @@ void DubascoProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     outputRms.store (std::sqrt (outEnv));
     springLevel.store (sprEnv);
     springKick.store (kickEnv);
+}
+
+void DubascoProcessor::strikeSpring (int spring, float strength)
+{
+    if (spring < 0 || spring > 2 || ! (strength > 0.0f)) return;
+    auto& a = crashPending[spring];
+    float cur = a.load();
+    while (! a.compare_exchange_weak (cur, cur + strength)) {}
 }
 
 void DubascoProcessor::getStateInformation (juce::MemoryBlock& destData)

@@ -213,6 +213,16 @@ public:
         outR = outLpR.process ((s2 + 0.6f * s3) * norm);
     }
 
+    // every spring gets its own input (used when a single spring is struck)
+    inline void process3 (const float* in, float& outL, float& outR)
+    {
+        const float s1 = springs[0].process (in[0]);
+        const float s2 = springs[1].process (in[1]);
+        const float s3 = springs[2].process (in[2]);
+        outL = outLp.process ((s1 + 0.6f * s3) * norm);
+        outR = outLpR.process ((s2 + 0.6f * s3) * norm);
+    }
+
 private:
     double fs = 44100.0;
     Spring springs[3];

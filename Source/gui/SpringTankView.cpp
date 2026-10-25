@@ -6,7 +6,7 @@ SpringTankView::SpringTankView()
 {
     setBounds (Layout::tankX0, Layout::tankY0, Layout::tankX1 - Layout::tankX0, Layout::tankY1 - Layout::tankY0);
     setOpaque (true);
-    setInterceptsMouseClicks (false, false);
+    setMouseCursor (MouseCursor::PointingHandCursor);
 
     base = Assets::get ("tank_base_png");
     hot = Assets::get ("tank_hot_png");
@@ -95,13 +95,106 @@ void SpringTankView::tick (float dt, float wetLevel, float kickLevel)
             }
             // ends are anchored in the transducers
             const float anchor = std::min (1.0f, std::min (u, 1.0f - u) * 25.0f);
-            s.disp[(size_t) x] = jlimit (-1.0f, 1.0f, d) * maxAmp * anchor;
+            s.disp[(size_t) x] = jlimit (-2.3f, 2.3f, d) * maxAmp * anchor;
         }
     }
 
     render();
     repaint();
 }
+
+//==============================================================================
+void SpringTankView::strike (int spring, float u, float strength)
+{
+    if (onStrike) onStrike (spring, strength);
+
+    auto& s = springs[spring];
+    const float a = jlimit (0.3f, 2.2f, strength * 1.4f);
+    if (s.pulses.size() < 14)
+    {
+        // the kink runs off in both directions from the finger
+        s.pulses.push_back ({ u, a, 0.0f, 1.0f });
+        s.pulses.push_back ({ u, a * 0.8f, 0.0f, -1.0f });
+    }
+    s.amp = std::max (s.amp, std::min (1.6f, strength));
+    // the neighbours rattle along
+    for (int i = 0; i < 3; ++i)
+        if (i != spring)
+            springs[i].amp = std::max (springs[i].amp, std::min (1.0f, strength * 0.45f));
+    glow = std::max (glow, std::min (1.0f, 0.35f + 0.5f * strength));
+}
+
+void SpringTankView::handleMotion (Point<float> pos, double timeMs, bool pressed)
+{
+    if (! hasLast)
+    {
+        lastPos = pos; lastTime = timeMs; hasLast = true;
+        return;
+    }
+    const float dt = (float) jmax (0.004, (timeMs - lastTime) * 0.001);
+    const float speed = pos.getDistanceFrom (lastPos) / dt;  // panel pixels per second
+    const auto from = lastPos;
+    lastPos = pos; lastTime = timeMs;
+
+    // hovering only crashes on a quick swipe, so a resting mouse stays quiet
+    const float minSpeed = pressed ? 60.0f : 700.0f;
+    if (speed < minSpeed) return;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        const auto& g = Layout::springs[i];
+        const float cy = 0.5f * (float) (g.y0 + g.y1) - (float) Layout::tankY0;
+        const float x0 = (float) (g.x0 - Layout::tankX0), x1 = (float) (g.x1 - Layout::tankX0);
+
+        // strum: the path crosses the spring
+        const float a = from.y - cy, b = pos.y - cy;
+        if ((a < 0.0f) != (b < 0.0f))
+        {
+            const float t = a / (a - b);
+            const float cx = from.x + (pos.x - from.x) * t;
+            if (cx > x0 - 10.0f && cx < x1 + 10.0f)
+            {
+                const float strength = jlimit (0.25f, 2.0f, (pressed ? 0.35f : 0.0f) + speed / 1800.0f);
+                strike (i, jlimit (0.0f, 1.0f, (cx - x0) / (x1 - x0)), strength);
+                continue;
+            }
+        }
+
+        // scrape: moving along the spring
+        if (std::abs (b) < 13.0f && pos.x > x0 && pos.x < x1 && timeMs - lastScrape[i] > 28.0)
+        {
+            lastScrape[i] = timeMs;
+            const float strength = jlimit (0.06f, 0.7f, speed / 3500.0f);
+            strike (i, (pos.x - x0) / (x1 - x0), strength);
+        }
+    }
+}
+
+void SpringTankView::mouseDown (const MouseEvent& e)
+{
+    hasLast = false;
+    handleMotion (e.position, e.eventTime.toMilliseconds(), true);
+
+    // a tap right on a spring plucks it
+    int best = -1; float bestDist = 18.0f;
+    for (int i = 0; i < 3; ++i)
+    {
+        const auto& g = Layout::springs[i];
+        const float d = std::abs (e.position.y - (0.5f * (float) (g.y0 + g.y1) - (float) Layout::tankY0));
+        if (d < bestDist) { bestDist = d; best = i; }
+    }
+    if (best >= 0)
+    {
+        const auto& g = Layout::springs[best];
+        const float x0 = (float) (g.x0 - Layout::tankX0), x1 = (float) (g.x1 - Layout::tankX0);
+        if (e.position.x > x0 && e.position.x < x1)
+            strike (best, (e.position.x - x0) / (x1 - x0), 0.9f);
+    }
+}
+
+void SpringTankView::mouseDrag (const MouseEvent& e)  { handleMotion (e.position, e.eventTime.toMilliseconds(), true); }
+void SpringTankView::mouseMove (const MouseEvent& e)  { handleMotion (e.position, e.eventTime.toMilliseconds(), false); }
+void SpringTankView::mouseExit (const MouseEvent&)    { hasLast = false; }
 
 void SpringTankView::render()
 {

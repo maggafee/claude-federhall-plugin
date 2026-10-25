@@ -26,6 +26,7 @@ DubascoEditor::DubascoEditor (DubascoProcessor& p) : AudioProcessorEditor (p), p
 
     addAndMakeVisible (panel);
     panel.addAndMakeVisible (tank);
+    tank.onStrike = [&p] (int spring, float strength) { p.strikeSpring (spring, strength); };
     panel.addAndMakeVisible (vuIn);
     panel.addAndMakeVisible (vuOut);
 
