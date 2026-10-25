@@ -1,0 +1,13 @@
+DUBASCO SPRING REVERB – Installation macOS
+
+1. "Dubasco Spring Reverb.component" (Audio Unit, für Logic)  ->  ~/Library/Audio/Plug-Ins/Components/
+2. "Dubasco Spring Reverb.vst3"  (VST3, für Ableton u. a.)    ->  ~/Library/Audio/Plug-Ins/VST3/
+3. "Dubasco Spring Reverb.clap"  (CLAP, Bitwig/Reaper)        ->  ~/Library/Audio/Plug-Ins/CLAP/
+   (~/Library erreichst du im Finder mit Cmd+Shift+G und "~/Library")
+
+Das Plugin ist nicht bei Apple notarisiert. Falls macOS es blockiert, einmal im Terminal:
+   xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/"Dubasco Spring Reverb.component"
+   xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/"Dubasco Spring Reverb.vst3"
+
+Logic: Neustart, das Plugin erscheint unter Audio Units > Dubasco.
+Ableton: Einstellungen > Plug-Ins > "VST3 Plug-In Custom Folder" an bzw. "Neu scannen".

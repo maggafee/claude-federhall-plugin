@@ -1,0 +1,72 @@
+name: Build plugins
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-14
+            cmake_args: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          - name: Windows
+            os: windows-latest
+            cmake_args: ""
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        shell: bash
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+
+      - name: Build
+        shell: bash
+        run: cmake --build build --config Release --parallel 4 --target DubascoSpringReverb_All DubascoSpringReverb_CLAP
+
+      - name: Collect (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          A="build/DubascoSpringReverb_artefacts/Release"
+          mkdir -p dist
+          cp -R "$A/VST3/Dubasco Spring Reverb.vst3" dist/
+          cp -R "$A/AU/Dubasco Spring Reverb.component" dist/
+          cp -R "$A/CLAP/Dubasco Spring Reverb.clap" dist/
+          cp -R "$A/Standalone/Dubasco Spring Reverb.app" dist/
+          # ad-hoc signature so Apple Silicon hosts load the bundles
+          for b in dist/*; do codesign --force --deep -s - "$b"; done
+          cp packaging/INSTALL_macOS.txt dist/
+          cd dist && zip -qry ../Dubasco-Spring-Reverb-macOS.zip .
+
+      - name: Validate AU (macOS)
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        run: |
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R "dist/Dubasco Spring Reverb.component" ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar || true
+          auval -v aufx Dsrv Dbsc
+
+      - name: Collect (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          A="build/DubascoSpringReverb_artefacts/Release"
+          mkdir -p dist
+          cp -R "$A/VST3/Dubasco Spring Reverb.vst3" dist/
+          cp "$A/CLAP/Dubasco Spring Reverb.clap" dist/
+          cp "$A/Standalone/Dubasco Spring Reverb.exe" dist/
+          cp packaging/INSTALL_Windows.txt dist/
+          7z a -tzip Dubasco-Spring-Reverb-Windows.zip ./dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Dubasco-Spring-Reverb-${{ matrix.name }}
+          path: Dubasco-Spring-Reverb-*.zip

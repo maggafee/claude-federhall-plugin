@@ -1,0 +1,6 @@
+DUBASCO SPRING REVERB – Installation Windows
+
+1. Ordner "Dubasco Spring Reverb.vst3" -> C:\Program Files\Common Files\VST3\
+2. "Dubasco Spring Reverb.clap"        -> C:\Program Files\Common Files\CLAP\
+3. Die .exe ist die Standalone-Version (ohne DAW nutzbar).
+In Ableton: Einstellungen > Plug-Ins > "Neu scannen".
